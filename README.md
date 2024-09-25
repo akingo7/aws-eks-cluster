@@ -47,3 +47,6 @@ The configuration is defined in the following files:
 
 To destroy the infrastructure created by this configuration, run:
 
+```bash
+terraform destroy
+```
