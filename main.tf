@@ -52,10 +52,11 @@ resource "kubernetes_service_account" "alb_controller_service_account" {
 
 resource "helm_release" "alb_controller" {
   name       = "alb-load-balancer-controller"
+  verify = false
   repository = "https://aws.github.io/eks-charts"
   namespace  = "kube-system"
-  chart      = "eks"
-  version    = "2.8"
+  chart      = "aws-load-balancer-controller"
+  version    = "1.8.3"
 
   set {
     name  = "clusterName"
