@@ -53,8 +53,9 @@ resource "kubernetes_service_account" "alb_controller_service_account" {
 resource "helm_release" "alb_controller" {
   name       = "alb-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
+  namespace  = "kube-system"
   chart      = "eks"
-  version    = "6.0.1"
+  version    = "2.8"
 
   set {
     name  = "clusterName"
@@ -68,6 +69,7 @@ resource "helm_release" "alb_controller" {
 
   set {
     name  = "serviceAccount.name"
-    value = kubernetes_service_account.alb_controller_service_account.default_secret_name
+    value = "aws-load-balancer-controller"
   }
+  depends_on = [ kubernetes_service_account.alb_controller_service_account ]
 }
