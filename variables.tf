@@ -28,7 +28,7 @@ variable "vpc_cidr" {
 
 variable "enable_nat_gateway" {
   type    = string
-  default = true
+  default = false
 }
 
 variable "enable_vpn_gateway" {

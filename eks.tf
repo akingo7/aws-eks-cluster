@@ -12,6 +12,7 @@ module "eks" {
     eks-pod-identity-agent = {}
     kube-proxy             = {}
     vpc-cni                = {}
+    aws-ebs-csi-driver     = {}
   }
 
   vpc_id                   = module.vpc.vpc_id
@@ -27,11 +28,14 @@ module "eks" {
     example = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.small"]
+      instance_types = ["t3.medium"]
 
       min_size     = 1
       max_size     = 2
       desired_size = 1
+      iam_role_additional_policies = {
+        ebs_csi = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+      }
     }
   }
 
@@ -50,3 +54,9 @@ module "eks" {
   tags = merge(var.tags)
 
 }
+
+# resource "aws_iam_policy_attachment" "ebs_csi" {
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+#   name = "ebs_csi"
+#   roles = ["example-eks-node-group-20240925202102829600000002"]
+# }

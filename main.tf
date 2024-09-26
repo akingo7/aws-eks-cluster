@@ -52,7 +52,7 @@ resource "kubernetes_service_account" "alb_controller_service_account" {
 
 resource "helm_release" "alb_controller" {
   name       = "alb-load-balancer-controller"
-  verify = false
+  verify     = false
   repository = "https://aws.github.io/eks-charts"
   namespace  = "kube-system"
   chart      = "aws-load-balancer-controller"
@@ -72,5 +72,5 @@ resource "helm_release" "alb_controller" {
     name  = "serviceAccount.name"
     value = "aws-load-balancer-controller"
   }
-  depends_on = [ kubernetes_service_account.alb_controller_service_account ]
+  depends_on = [kubernetes_service_account.alb_controller_service_account]
 }

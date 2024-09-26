@@ -12,6 +12,14 @@ module "vpc" {
   enable_vpn_gateway      = var.enable_vpn_gateway
   map_public_ip_on_launch = var.map_public_ip_on_launch
 
-
+  private_subnet_tags = merge(var.tags, {
+    "kubernetes.io/role/internal-elb" = "true"
+    }
+  )
+  public_subnet_tags = merge(var.tags, {
+    "kubernetes.io/role/elb" = "",
+    "kubernetes.io/role/alb-ingress" = ""
+    }
+  )
   tags = merge(var.tags)
 }
