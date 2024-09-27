@@ -17,7 +17,7 @@ module "vpc" {
     }
   )
   public_subnet_tags = merge(var.tags, {
-    "kubernetes.io/role/elb" = "",
+    "kubernetes.io/role/elb"         = "",
     "kubernetes.io/role/alb-ingress" = ""
     }
   )
