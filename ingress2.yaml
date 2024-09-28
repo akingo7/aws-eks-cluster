@@ -5,10 +5,10 @@
     namespace: tools
     annotations:
       alb.ingress.kubernetes.io/scheme: internet-facing
-      cert-manager.io/issuer: letsencrypt-prod
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-      cert-manager.io/private-key-rotation-policy: Always  
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      # alb.ingress.kubernetes.io/ssl-redirect: '443'
+      cert-manager.io/private-key-rotation-policy: Always
     labels:
       name: artifactory
   spec:
@@ -27,4 +27,4 @@
             service:
               name: artifactory-artifactory-nginx
               port:
-                number: 80
+                number: 443
