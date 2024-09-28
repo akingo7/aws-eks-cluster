@@ -4,50 +4,21 @@ locals {
   availability_zones = slice(data.aws_availability_zones.available.names, 0, 3)
 }
 
-resource "aws_iam_role_policy" "alb_controller_policy" {
-  name   = "alb_controller_policy"
-  role   = aws_iam_role.alb_controller_role.id
-  policy = file("template/alb-iam-policy.json")
+
+######## All IAM Policies can be modified to make them more secure ########
+#### ALB Controller Resources ####
+
+module "alb_controller" {
+  source                      = "./modules/irsa"
+  name                        = "alb_controller"
+  policy_file_path            = file("template/alb-iam-policy.json")
+  eks_oidc_provider_arn       = module.eks.oidc_provider_arn
+  eks_oidc_provider           = module.eks.oidc_provider
+  namespace                   = "kube-system"
+  service_account_name        = "aws-load-balancer-controller"
+  create_kube_service_account = true
+
 }
-
-resource "aws_iam_role" "alb_controller_role" {
-  name               = "alb_controller_role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Federated"
-      identifiers = [module.eks.oidc_provider_arn]
-    }
-
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    condition {
-      test     = "StringEquals"
-      variable = "${module.eks.oidc_provider}:aud"
-      values   = ["sts.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "${module.eks.oidc_provider}:sub"
-      values   = ["system:serviceaccount:kube-system:aws-load-balancer-controller"]
-    }
-  }
-}
-
-resource "kubernetes_service_account" "alb_controller_service_account" {
-  metadata {
-    name      = "aws-load-balancer-controller"
-    namespace = "kube-system"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.alb_controller_role.arn
-    }
-  }
-}
-
 
 
 resource "helm_release" "alb_controller" {
@@ -72,5 +43,20 @@ resource "helm_release" "alb_controller" {
     name  = "serviceAccount.name"
     value = "aws-load-balancer-controller"
   }
-  depends_on = [kubernetes_service_account.alb_controller_service_account]
+  depends_on = [module.alb_controller]
+}
+
+
+#### Cert Manager Service Account Role ####
+
+module "cert_manager" {
+  source                      = "./modules/irsa"
+  name                        = "cert_manager"
+  policy_file_path            = file("template/cert-manager-policy.json")
+  eks_oidc_provider_arn       = module.eks.oidc_provider_arn
+  eks_oidc_provider           = module.eks.oidc_provider
+  namespace                   = "cert-manager"
+  service_account_name        = "cert-manager"
+  create_kube_service_account = false
+
 }

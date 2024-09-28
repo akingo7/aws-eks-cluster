@@ -1,0 +1,30 @@
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: artifactory-ingress
+    namespace: tools
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      cert-manager.io/issuer: letsencrypt-staging
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+      cert-manager.io/private-key-rotation-policy: Always  
+    labels:
+      name: artifactory
+  spec:
+    ingressClassName: alb
+    tls:
+    - hosts:
+      - tooling.artifactory.steghub.com
+      secretName: tooling.artifactory.steghub.com
+    rules:
+    - host: tooling.artifactory.steghub.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: artifactory-artifactory-nginx
+              port:
+                number: 80
