@@ -9,6 +9,14 @@
       privateKeySecretRef:
         name: letsencrypt-prod
       solvers:
-      - http01:
-          ingress:
-            class: alb
+      - selector:
+          dnsZones:
+            - "steghub.com"
+        dns01:
+          route53:
+            region: us-east-1
+            role: "eks.amazonaws.com/role-arn: arn:aws:iam::312973238800:role/cert_manager_role" # This must be set so cert-manager what role to attempt to authenticate with
+            auth:
+              kubernetes:
+                serviceAccountRef:
+                  name: "cert-manager" # The name of the service account created

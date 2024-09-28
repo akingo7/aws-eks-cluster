@@ -58,5 +58,30 @@ module "cert_manager" {
   namespace                   = "cert-manager"
   service_account_name        = "cert-manager"
   create_kube_service_account = false
+}
 
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  verify     = false
+  repository = "https://charts.jetstack.io"
+  namespace  = "cert-manager"
+  chart      = "cert-manager"
+  version    = "1.15.3"
+  create_namespace = true
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = "${module.cert_manager.role_arn}"
+  }
+
+  set {
+    name  = "rds.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "securityContext.fsGroup"
+    value = "1001"
+  }
+  depends_on = [module.cert_manager]
 }
