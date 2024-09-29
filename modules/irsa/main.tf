@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "assume_role" {
 resource "kubernetes_service_account" "service_account" {
   count = var.create_kube_service_account ? 1 : 0
   metadata {
-    name      = "${var.service_account_name}"
+    name      = var.service_account_name
     namespace = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = aws_iam_role.role.arn
