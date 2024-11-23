@@ -38,3 +38,8 @@ terraform.rc
 
 ingress*.yaml
 letsencrypt*
+
+# Helm Charts
+charts
+
+.vscode
